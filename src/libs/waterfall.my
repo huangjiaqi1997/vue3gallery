@@ -1,0 +1,237 @@
+<script setup>
+import { loadImage } from '@/utils/image'
+import { observeVisible } from '@/utils/visible'
+import { nextTick, onMounted, useTemplateRef, watch } from 'vue'
+
+const { list, columns, space, imagePreload } = defineProps([
+  'list',
+  'columns',
+  'space', // 两端也有
+  'imagePreload'
+])
+
+let columnsH = [] // 高度容器
+
+const containerRef = useTemplateRef('containerRef') // todo: 监控容器宽度
+// const containerW = containerRef.value.clientWidth
+const containerW = ref(0)
+const imageW = ref(0)
+// const imageW = compute(
+//   () => (containerW - (columns + 1) * space - columns * 2) / columns
+// )
+
+// let infoH = 0
+
+let containerH = ref(0)
+
+const imagesRef = useTemplateRef('imagesRef')
+
+// const computedSingle = (image) => {
+//   // return new Promise((resolve, reject) => {
+//   observeVisible(image, () => {
+//     image.src = image.dataset.src
+//     image.onload = () => {
+//       computedSingle()
+//     }
+//   })
+//   // })
+// }
+
+// const getImage = (image) => {
+//   return new Promise((resolve, reject) => {
+//     observeVisible(image, () => {
+//       image.src = image.dataset.src
+//       image.onload = () => resolve(image)
+//     })
+//   })
+// }
+
+onMounted(() => {
+  // 一个返回响应式对象的 getter 函数，只有在返回不同的对象时，才会触发回调：
+  // list变化 columnsH 需要初始化
+  watch(
+    () => list,
+    (val) => {
+      console.log('watch list')
+      columnsH = Array(columns).fill(0)
+
+      loadAllImageAndComputed()
+
+      // compute(val)
+
+      // list.forEach((item) => {
+      // list.length && nextTick(() => compute(list[0], 0, list))
+      // })
+
+      // nextTick(() => lazy())
+    }
+  )
+
+  // 屏幕变小，为2列
+  // 列变化 全部数据都要初始化
+  watch(
+    () => columns,
+    (val) => {
+      console.log('watch col')
+      // 等待 Container 宽度变化后
+      nextTick(() => {
+        initComputeData()
+
+        loadAllImageAndComputed()
+        // compute(list)
+      })
+    },
+    {
+      immediate: true
+    }
+  )
+})
+
+function initComputeData() {
+  columnsH = Array(columns).fill(0)
+  space = columns > 2 ? 10 : 8
+  infoH = 64
+  const containerW = containerRef.value.clientWidth
+  console.log('', containerW)
+  imageW = (containerW - (columns + 1) * space - columns * 2) / columns
+}
+
+// function compute(item, index, list) {
+//   // 先定定位
+//   const minHIndex = columnsH.findIndex((h) => h === Math.min(...columnsH))
+//   item.top = columnsH[minHIndex] + 'px'
+//   item.left =
+//     minHIndex * imageW + minHIndex * 2 + space * (minHIndex + 1) + 'px' // 定位以子元素 border外为基准
+
+//   // 获取图片高度 并更新高度容器
+//   // loadImage(item.photo).then(({ height: _imageH, width: _imageW }) => {
+//   const image = imagesRef.value[index]
+//   image.src = item.photo
+//   image.onload = () => {
+//     const { height: _imageH, width: _imageW } = image
+//     const imageH = _imageH * (imageW / _imageW)
+//     const itemHeight = imageH + infoH + 2
+
+//     image.style.height = imageH + 'px'
+//     image.style.width = imageW + 'px'
+
+//     columnsH[minHIndex] += itemHeight + space
+//     containerH = Math.max(...columnsH)
+
+//     if (index + 1 <= list.length) {
+//       index++
+//       compute(list[index], index, list)
+//     }
+//   }
+//   // })
+// }
+function lazy() {
+  imagesRef.value.forEach((image) => {
+    observeVisible(image, () => {
+      image.src = image.dataset.src
+    })
+  })
+}
+
+function loadAllImageAndComputed() {
+  if (list.length === 0) return
+  return Promise.all(
+    list.map((item) => {
+      return loadImage(item.photo)
+      // const { height, width } = await loadImage(item.phote)
+      // item._photoHeight = height
+      // item._photoWidth = width
+    })
+  ).then((imagesArr) => {
+    imagesArr.length &&
+      list.forEach((item, index) => {
+        const { height, width } = imagesArr[index]
+        item._photoHeight = height
+        item._photoWidth = width
+      })
+    compute(list)
+  })
+}
+// 依次计算每个 item 的定位
+async function compute(list) {
+  if (!list.length) return
+
+  // console.log('compute', list)
+  // debugger
+  list.forEach(async (item, index) => {
+    const minHIndex = columnsH.findIndex(
+      (h) => h === Math.min(...columnsH)
+    )
+    item.top = columnsH[minHIndex] + 'px'
+    item.left =
+      minHIndex * imageW + minHIndex * 2 + space * (minHIndex + 1) + 'px' // 定位以子元素 border外为基准
+
+    const imageH = item._photoHeight * (imageW / item._photoWidth)
+    // const imageH = item.photoHeight * (imageW / item.photoWidth)
+    const itemHeight = imageH + infoH + 2
+
+    item.imageH = imageH
+    item.imageW = imageW
+
+    columnsH[minHIndex] += itemHeight + space
+    containerH = Math.max(...columnsH)
+  })
+}
+</script>
+
+<template>
+  <div
+    ref="containerRef"
+    class="relative my-[10px]"
+    :style="{ height: containerH + 'px' }"
+  >
+    <!-- 图片onload完成并计算 => 等待DOM更新，
+  其中图片会以原始宽高显示出来 -->
+    <template v-if="list[0]?.imageH">
+      <div
+        v-for="item in list"
+        :key="item.id"
+        class="absolute rounded border border-zinc-200"
+        :style="{ top: item.top, left: item.left }"
+      >
+        <img
+          ref="imagesRef"
+          class="rounded-t w-full"
+          :src="item.photo"
+          :style="{
+            width: item.imageW + 'px',
+            height: item.imageH + 'px'
+          }"
+        />
+        <div
+          class="-z-10 absolute left-0 top-0 rounded-t bg-zinc-300"
+          :style="{
+            width: item.imageW + 'px',
+            height: item.imageH + 'px'
+          }"
+        ></div>
+        <div class="text-sm py-1">
+          <div
+            :style="{ width: item.imageW + 'px' }"
+            class="font-semibold px-1 overflow-hidden text-ellipsis whitespace-nowrap"
+          >
+            {{ item.title }}
+          </div>
+          <div :style="{ width: item.imageW + 'px' }" class="px-1 mt-0.5">
+            <img
+              class="w-2 h-2 mr-0.5 rounded-full inline-block"
+              :src="item.avatar"
+            />
+            <span
+              :style="{ width: `calc(${item.imageW}px - 1.125rem)` }"
+              class="align-middle text-zinc-600 overflow-hidden text-ellipsis whitespace-nowrap inline-block"
+              >{{ item.author }}</span
+            >
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+</template>
+
+<style scoped></style>
