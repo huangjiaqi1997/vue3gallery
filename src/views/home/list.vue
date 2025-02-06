@@ -77,12 +77,10 @@ const handleVisibleChange = (isVisible) => {
   isLoading.value = isVisible
 }
 
+// 当前页所有图片预加载完成
 const handlePreloadFinished = () => (isPreloading.value = false)
 
-const handleChangeMode = () => {
-  isProloadMode.value = !isProloadMode.value
-  // resetListState()
-}
+const handleChangeMode = () => (isProloadMode.value = !isProloadMode.value)
 
 /**
  * 瀑布流
@@ -119,13 +117,14 @@ const handleFull = (imageRef) => {
   imageRef.value.requestFullscreen()
 }
 
-const handleView = (item, imageRef, imageHeight) => {
+const handleView = (item, imageRef) => {
   _item.value = item
   pinVisible.value = true
 
+  // 计算图片的中心点
   const { x: _x, y: _y } = imageRef.value.getBoundingClientRect()
-  const x = _x + item.itemW / 2 + 'px'
-  const y = _y + imageHeight / 2 + 'px'
+  const x = _x + (item.itemW - 1.45) / 2 + 'px'
+  const y = _y + item.imageHeight / 2 + 'px'
   clickPos.value = { x, y }
 
   history.pushState({}, '', `/vue3gallery/pins/${item.id}`)

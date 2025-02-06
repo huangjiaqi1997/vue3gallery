@@ -1,5 +1,5 @@
 <script setup>
-import { getImageHeight } from '@/libs/waterfall.vue'
+import { isMobile } from '@/utils/flexible'
 import { observeVisible } from '@/utils/visible'
 
 import { onMounted, ref, useTemplateRef } from 'vue'
@@ -20,20 +20,12 @@ onMounted(() => {
   imageRef.value.src = ''
 
   observeVisible(imageRef.value, (isVisiable) => {
-    if (isVisiable) {
-      imageRef.value.src = _src
-    }
+    if (isVisiable) imageRef.value.src = _src
   })
 })
 
-const imageHeight = getImageHeight(
-  item.photoHeight,
-  item.photoWidth,
-  item.itemW
-)
-
-const onMuskClick = () => {
-  emits('view', item, imageRef, imageHeight)
+const onItemClick = () => {
+  emits('view', item, imageRef)
   // detailVisible.value = true
 
   // const { x: _x, y: _y } = imageRef.value.getBoundingClientRect()
@@ -61,52 +53,56 @@ const onFullClick = () => {
 <template>
   <div class="rounded bg-zinc-300">
     <!-- 图片和蒙版 -->
-    <img
-      :style="{
-        height: imagePreload ? 'auto' : imageHeight + 'px',
-        width: item.itemW - 1.45 + 'px'
-      }"
-      ref="imageRef"
-      class="rounded-t w-full"
-      :src="item.photo"
-    />
-    <!-- 蒙版 -->
-    <div
-      @click="onMuskClick"
-      class="cursor-zoom-in absolute left-0 top-0 rounded-t bg-zinc-800/40 opacity-0 hover:opacity-100 duration-200"
-      :style="{
-        height: imageHeight + 'px',
-        width: item.itemW - 1.45 + 'px'
-      }"
-    >
-      <m-button
-        class="absolute top-1 left-1"
-        type="primary"
-        size="small"
-        @click="onShareClick"
-        >分享</m-button
+    <div @click="onItemClick">
+      <!-- 图片 -->
+      <!-- height: imagePreload ? 'auto' : imageHeight + 'px', -->
+      <img
+        :style="{
+          height: item.imageHeight + 'px',
+          width: item.itemW - 1.45 + 'px'
+        }"
+        ref="imageRef"
+        class="rounded-t w-full"
+        :src="item.photo"
+      />
+      <!-- 蒙版 -->
+      <div
+        v-if="!isMobile"
+        class="cursor-zoom-in absolute left-0 top-0 rounded-t bg-zinc-800/40 opacity-0 hover:opacity-100 duration-300"
+        :style="{
+          height: item.imageHeight + 'px',
+          width: item.itemW - 1.45 + 'px'
+        }"
       >
-      <m-button
-        class="absolute top-1 right-1"
-        type="info"
-        icon="heart"
-        size="small"
-        @click="onLikeClick"
-      ></m-button>
-      <m-button
-        class="absolute bottom-1 left-1"
-        type="info"
-        icon="download"
-        size="small"
-        @click="onDownlaodClick"
-      ></m-button>
-      <m-button
-        class="absolute bottom-1 right-1"
-        type="info"
-        icon="full"
-        size="small"
-        @click="onFullClick"
-      ></m-button>
+        <m-button
+          class="absolute top-1 left-1"
+          type="primary"
+          size="small"
+          @click="onShareClick"
+          >分享</m-button
+        >
+        <m-button
+          class="absolute top-1 right-1"
+          type="info"
+          icon="heart"
+          size="small"
+          @click="onLikeClick"
+        ></m-button>
+        <m-button
+          class="absolute bottom-1 left-1"
+          type="info"
+          icon="download"
+          size="small"
+          @click="onDownlaodClick"
+        ></m-button>
+        <m-button
+          class="absolute bottom-1 right-1"
+          type="info"
+          icon="full"
+          size="small"
+          @click="onFullClick"
+        ></m-button>
+      </div>
     </div>
     <!-- 图片信息 -->
     <div class="text-sm py-1 bg-white rounded-b">

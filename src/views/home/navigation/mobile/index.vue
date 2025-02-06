@@ -67,23 +67,24 @@ const handleMenuClose = () => (popupVisiable.value = false)
 
 <template>
   <div class="z-10 bg-white sticky top-0 left-0 border-b border-zinc-200">
+    <!-- 汉堡按钮 -->
+    <div
+      class="z-10 absolute top-[0.05rem] right-0 p-[0.2rem] bg-white shadow-l"
+      @click="onHamburgerClick"
+    >
+      <m-svg-icon class="h-1.5 w-1.5 z-10" name="hamburger"></m-svg-icon>
+    </div>
     <ul ref="ulRef" class="relative overflow-x-auto flex text-sm">
       <!-- 滑块 -->
       <li
         ref="slider"
-        class="bg-zinc-900 h-3 mt-[0.1rem] rounded-md absolute -z-10 duration-300"
+        class="bg-zinc-900 h-3 mt-[0.09rem] rounded-md absolute -z-10 duration-300"
         :style="{
           width: sliderWidth + 'px',
           left: sliderLeft + 'px'
         }"
       ></li>
-      <!-- 汉堡按钮 -->
-      <li
-        class="fixed top-[0.05rem] right-0 p-[0.2rem] bg-white shadow-l"
-        @click="onHamburgerClick"
-      >
-        <m-svg-icon class="h-1.5 w-1.5 z-10" name="hamburger"></m-svg-icon>
-      </li>
+
       <!-- 分类 -->
       <li
         ref="liRefs"
