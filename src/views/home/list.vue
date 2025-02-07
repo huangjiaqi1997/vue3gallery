@@ -1,7 +1,7 @@
 <script setup>
 import api from '@/api'
 import { isMobile } from '@/utils/flexible'
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { Message } from '@/libs'
 import { downloadFile } from '@/utils/download'
@@ -135,26 +135,26 @@ const handleClose = () => {
   history.back()
 }
 
-// todo
-window.addEventListener('popstate', (e) => {
+// 后退就关闭弹窗
+const handlePopstate = () => {
+  // 只能获取到to的路径
   const matchs = location.pathname.match(/\/pins\/\d+/)
-  if (matchs !== null) {
-    console.log('pin true')
-    pinVisible.value = true
-  } else {
-    console.log('pin false')
-    pinVisible.value = false
-  }
-})
+  if (!matchs) pinVisible.value = false
+}
+// 监听前进 后退
+window.addEventListener('popstate', handlePopstate)
+onUnmounted(() => window.removeEventListener('popstate', handlePopstate))
 </script>
 
 <template>
   <div>
     <div
       v-if="!isMobile"
-      class="fixed z-10 top-13 right-6 text-sm flex items-center"
+      class="fixed z-10 top-13 right-10 text-xs flex items-center"
     >
-      <span class="duration-300" :class="{ 'text-zinc-400': !isProloadMode }"
+      <span
+        class="duration-300 text-zinc-600"
+        :class="{ 'text-zinc-300': !isProloadMode }"
         >预加载</span
       >
       <m-switch
@@ -162,7 +162,9 @@ window.addEventListener('popstate', (e) => {
         :isChecked="!isProloadMode"
         @change="handleChangeMode"
       ></m-switch
-      ><span class="duration-300" :class="{ 'text-zinc-400': isProloadMode }"
+      ><span
+        class="duration-300 text-zinc-600"
+        :class="{ 'text-zinc-300': isProloadMode }"
         >懒加载</span
       >
     </div>

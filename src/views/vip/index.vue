@@ -114,7 +114,7 @@ const onAlipayClick = () => {}
 
         <div
           v-else
-          class="px-1 py-1 text-xs flex justify-between items-center text-left"
+          class="bg-white px-1 py-1 text-xs flex justify-between items-center text-left"
         >
           <!-- 左 -->
           <div class="mt-[-5px]">
@@ -140,7 +140,7 @@ const onAlipayClick = () => {}
       :visible="popupVisible"
       height="50%"
     >
-      <div class="">
+      <div>
         <div class="text-lg font-semibold border-b border-zinc-200 px-1.5 py-2">
           选择支付方式
         </div>

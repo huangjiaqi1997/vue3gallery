@@ -11,14 +11,6 @@ const handleClose = () => {
   visible.value = false
   history.back()
 }
-// window.addEventListener('popstate', (e) => {
-//   const matchs = location.pathname.match(/\/pins\/\d+/)
-//   if (matchs !== null) {
-//     visible.value = true
-//   } else {
-//     visible.value = false
-//   }
-// })
 </script>
 
 <template>

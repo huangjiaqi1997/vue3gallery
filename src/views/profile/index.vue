@@ -1,7 +1,4 @@
 <script>
-export default {
-  name: 'profile'
-}
 const titles = [
   { name: '请选择职位', value: '', id: '' },
   { name: 'Python工程师', value: 'Python', id: 1 },
@@ -48,58 +45,32 @@ const districts = {
     { name: '南开区', value: 'nankai', id: 4 }
   ]
 }
-// 特殊处理
-const homePageToLocation = (userInfo) => {
-  const homePage = userInfo.homePage
-  if (homePage) {
-    const localArr = homePage.split(' ')
-    return { province: localArr[0], city: localArr[1], district: localArr[2] }
-  } else {
-    return { province: '', city: '', district: '' }
-  }
-}
-const locationToHomePage = (location) => Object.values(location).join(' ')
-
-const filterUserInfo = (userInfo) => {
-  const { nickname, title, company, homePage, introduction } = userInfo
-  if (homePage === '') homePage = '   '
-  return { nickname, title, company, homePage, introduction }
-}
 </script>
 <script setup>
 import { isMobile } from '@/utils/flexible'
-import { computed, ref,  watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import AvatarUpload from './avatar-upload.vue'
 import { Message } from '@/libs'
-import {Confirm} from '@/libs'
+import { Confirm } from '@/libs'
 import { useRouter } from 'vue-router'
-
 
 const store = useStore()
 const router = useRouter()
 
 const storeUserInfo = computed(() => store.getters.userInfo)
-const userInfo = ref({...storeUserInfo.value})
+const userInfo = ref({ ...storeUserInfo.value })
 const avatar = ref(storeUserInfo.value.avatar)
 const isSubmitLoading = ref(false)
 const isSubmitDisabled = ref(true)
 const isDialogVisible = ref(false)
-// const location = ref(homePageToLocation(storeUserInfo.value)) // 特殊处理
 
-// storeUserInfo变化 => userInfo 和 avatar 变化
-// watch(storeUserInfo, () => {
-//   userInfo.value = filterUserInfo(storeUserInfo.value)
-//   avatar.value = storeUserInfo.value.avatar
-//   location.value = homePageToLocation(storeUserInfo.value) // 特殊处理
-// })
 // 监听 userInfo 改变
 watch(
   userInfo,
   (newVal, oldVal) => {
-    if (newVal.avatar !== oldVal.avatar) {
-      return
-    }
+    // 此时修改的是头像
+    if (newVal.avatar !== oldVal.avatar) return
     if (isSubmitDisabled.value) {
       isSubmitDisabled.value = false
     }
@@ -118,62 +89,56 @@ const location = computed(() => {
 })
 
 const onProvChange = (e) => {
-  // location.value.city = ''
-  // location.value.district = ''
-  // location.value.province = e.target.value // 特殊处理
-  
   userInfo.value.homePage = `${e.target.value}  `
 }
 const onCityChange = (e) => {
-  // location.value.district = ''
-  // location.value.city = e.target.value // 特殊处理
-  const homePage = userInfo.value.homePage.replace(/\s.*/,` ${e.target.value} `)
+  const homePage = userInfo.value.homePage.replace(
+    /\s.*/,
+    ` ${e.target.value} `
+  )
   userInfo.value.homePage = homePage
 }
 const onDistChange = (e) => {
-  const homePage = userInfo.value.homePage.replace(/\s$/,` ${e.target.value}`)
+  const homePage = userInfo.value.homePage.replace(/\s$/, ` ${e.target.value}`)
   userInfo.value.homePage = homePage
 }
-
 
 // 提交基本信息
 const onSubmitInfo = async () => {
   isSubmitLoading.value = true
   await store.dispatch('updateUserInfo', userInfo.value)
-  //   ...userInfo.value,
-  //   avatar: storeUserInfo.value.avatar
-  // })
+
   // 同步 storeUserInfo 变化
-  userInfo.value = {...storeUserInfo.value}
-  // location.value = homePageToLocation(storeUserInfo.value) // 特殊处理
+  userInfo.value = { ...storeUserInfo.value }
 
   Message({ type: 'success', message: '资料修改成功！' })
   isSubmitDisabled.value = true
   isSubmitLoading.value = false
 }
 
-const handleAvatarClick = () => isDialogVisible.value = true
+const handleAvatarClick = () => (isDialogVisible.value = true)
 const handleDialogClose = () => {
   isDialogVisible.value = false
   avatar.value = storeUserInfo.value.avatar
 }
 
 const onLogoutClick = () => {
-  Confirm({ content: '确定退出登录吗？'}).then(() => store.commit('logout'))
+  Confirm({ content: '确定退出登录吗？' }).then(() => store.commit('logout'))
 }
 </script>
 
 <template>
-<div
-  class="h-full w-full bg-zinc-100 overflow-auto text-base font-semibold font-['Helvetica']"
+  <div
+    class="h-full w-full bg-zinc-100 overflow-auto text-base font-semibold font-['Helvetica']"
   >
-  <m-navbar v-if="isMobile">我的资料</m-navbar>
-  <div class="border border-zinc-200 xl:max-w-screen-lg xl:mx-auto xl:mt-1 bg-white rounded xl:p-4 p-2">
+    <m-navbar v-if="isMobile">我的资料</m-navbar>
+    <div
+      class="xl:border border-zinc-200 xl:max-w-screen-lg xl:mx-auto xl:mt-1 bg-white rounded xl:p-4 p-2"
+    >
       <!-- 标题 -->
       <div v-if="!isMobile" class="font-semibold text-center mb-3">
         编辑个人信息
       </div>
-
       <!-- 内容 -->
       <div class="xl:flex">
         <!-- 头像 -->
@@ -196,42 +161,19 @@ const onLogoutClick = () => {
                 更换头像
               </div>
             </div>
-            <div class="w-[50%] text-sm xl:text-center text-left text-zinc-400 mb-2.5">
+            <div
+              class="w-[50%] text-sm xl:text-center text-left text-zinc-400 mb-2.5"
+            >
               支持 jpg、png、jpeg 格式大小 5M 以内的图片
             </div>
           </div>
-          <!-- <div class="flex justify-center mb-2.5">
-          <label @click="onRandomClick" class="text-main cursor-pointer mr-2"
-            >换一换</label
-          >
-          <label for="avatar" class="text-main cursor-pointer">上传头像</label>
-          <input
-            @change="onFileChange"
-            ref="fileRef"
-            class="hidden"
-            type="file"
-            id="avatar"
-            name="avatar"
-            accept="image/png/jpeg"
-          />
-        </div>
-
-        <div class="flex">
-          <m-button
-            :disabled="isAvatarSubmitDisabled"
-            @click="onSubmitAvatar"
-            class="mr-2"
-            type="primary"
-            >保存</m-button
-          >
-          <m-button @click="onCancelAvatar" class="" type="info">取消</m-button> -->
-          <!-- </div> -->
         </div>
         <!-- 信息 -->
         <div class="xl:w-[75%]">
           <!-- 昵称 -->
           <div class="mb-2.5 flex xl:flex-row flex-col xl:items-center">
-            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="nickname">昵称：</label
+            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="nickname"
+              >昵称：</label
             ><input
               placeholder="请输入昵称"
               v-model="userInfo.nickname"
@@ -243,7 +185,9 @@ const onLogoutClick = () => {
           </div>
           <!-- 职位 -->
           <div class="mb-2.5 flex xl:flex-row flex-col xl:items-center">
-            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="title">职位：</label>
+            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="title"
+              >职位：</label
+            >
             <select
               v-model="userInfo.title"
               name="title"
@@ -261,7 +205,9 @@ const onLogoutClick = () => {
           </div>
           <!-- 性别 -->
           <div class="mb-2.5 flex xl:flex-row flex-col xl:items-center">
-            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="gender">性别：</label>
+            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="gender"
+              >性别：</label
+            >
             <div>
               <input
                 checked
@@ -281,10 +227,8 @@ const onLogoutClick = () => {
             </div>
           </div>
           <!-- 地区 -->
-          <div
-            class="mb-2.5 flex xl:flex-row flex-col xl:items-center"
-          >
-            <label class=" w-10 xl:text-right xl:mb-0 mb-1" for="nickname"
+          <div class="mb-2.5 flex xl:flex-row flex-col xl:items-center">
+            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="nickname"
               >所在地区：</label
             >
             <div class="flex flex-grow">
@@ -323,7 +267,7 @@ const onLogoutClick = () => {
                 @change="onDistChange"
                 name="district"
                 id=""
-                class="w-full  focus:outline focus:outline-main p-1 bg-zinc-100 outline-none focus:bg-white duration-200 rounded-sm"
+                class="w-full focus:outline focus:outline-main p-1 bg-zinc-100 outline-none focus:bg-white duration-200 rounded-sm"
               >
                 <option
                   v-for="district in districts[location.city]"
@@ -337,7 +281,9 @@ const onLogoutClick = () => {
           </div>
           <!-- 日期 -->
           <div class="mb-2.5 flex xl:flex-row flex-col xl:items-center">
-            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="brithday">出生日期：</label>
+            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="brithday"
+              >出生日期：</label
+            >
             <input
               v-model="userInfo.company"
               class="flex-grow focus:outline focus:outline-main p-1 bg-zinc-100 outline-none focus:bg-white duration-200 rounded-sm"
@@ -347,8 +293,9 @@ const onLogoutClick = () => {
             />
           </div>
           <!-- 介绍 -->
-          <div class="mb-2.5 flex xl:flex-row flex-col"xl:>
-            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="nickname">个性签名：</label
+          <div class="mb-2.5 flex xl:flex-row flex-col">
+            <label class="w-10 xl:text-right xl:mb-0 mb-1" for="nickname"
+              >个性签名：</label
             ><textarea
               v-model="userInfo.introduction"
               rows="4"
@@ -357,9 +304,10 @@ const onLogoutClick = () => {
             />
           </div>
           <!-- 提交 -->
-          <div>
+          <div class="xl:mb-0 mb-4">
             <m-button
-              :style="[isMobile?{width: '100%'}:{}]"
+              :style="[isMobile ? { width: '100%' } : {}]"
+              :size="isMobile ? 'large' : 'medium'"
               :disabled="isSubmitDisabled"
               :loading="isSubmitLoading"
               @click="onSubmitInfo"
@@ -370,6 +318,7 @@ const onLogoutClick = () => {
             <m-button
               v-if="isMobile"
               style="width: 100%"
+              :size="isMobile ? 'large' : 'medium'"
               @click="onLogoutClick"
               class="mx-auto mt-1"
               type="info"
@@ -379,9 +328,12 @@ const onLogoutClick = () => {
         </div>
       </div>
     </div>
-    <AvatarUpload :visible="isDialogVisible" :userInfo="storeUserInfo"  @close="handleDialogClose"></AvatarUpload>
+    <AvatarUpload
+      :visible="isDialogVisible"
+      :userInfo="storeUserInfo"
+      @close="handleDialogClose"
+    ></AvatarUpload>
   </div>
-
 </template>
 
 <style scoped></style>

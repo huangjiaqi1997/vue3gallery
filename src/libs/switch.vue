@@ -7,7 +7,7 @@ const onChange = () => emits('change')
 
 <template>
   <label
-    class="relative inline-block w-4 h-2 rounded-[0.5rem] border-1 border-zinc-200 duration-300 box-content bg-zinc-200 has-[:checked]:bg-main cursor-pointer"
+    class="relative inline-block w-3 h-1.5 rounded-[0.5rem] border-1 border-zinc-200 duration-300 box-content bg-zinc-200 has-[:checked]:bg-main cursor-pointer"
   >
     <input
       class="hidden peer"
@@ -16,7 +16,7 @@ const onChange = () => emits('change')
       @change="onChange"
     />
     <div
-      class="absolute h-2 w-2 rounded-full bg-white border-1 border-zinc-200 duration-300 shadow-md peer-[:checked]:right-0"
+      class="absolute h-1.5 w-1.5 rounded-full bg-white border-1 border-zinc-200 duration-300 shadow-md peer-[:checked]:right-0"
     ></div>
   </label>
 </template>

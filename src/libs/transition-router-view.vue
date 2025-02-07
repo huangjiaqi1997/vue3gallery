@@ -16,7 +16,6 @@ router.beforeEach((to, from) => {
     return true
   }
 
-  console.log('', window.history.state)
   const isBack = position > window.history.state.position
   if (isBack) {
     tranisitionName.value = 'back'

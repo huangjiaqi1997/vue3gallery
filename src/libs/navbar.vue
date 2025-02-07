@@ -15,7 +15,6 @@ const onLeftClick = () => {
   if (leftClick) return leftClick()
 
   router.back()
-  store.commit('setType', 'back')
 }
 const onRightClick = () => rightClick && rightClick()
 </script>

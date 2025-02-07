@@ -3,17 +3,20 @@ import { onMounted, ref } from 'vue'
 import driverObj from './guide'
 
 const isToTopVisiable = ref(false)
-
 let home = null
-onMounted(() => {
-  home = document.querySelector('.home')
+
+onMounted(() => watchHomeScroll())
+
+const watchHomeScroll = () => {
+  if (location.pathname !== '/vue3gallery') return
 
   // 监听 scrollTop 控制icon显示
+  home = document.querySelector('.home')
   home.onscroll = (e) => {
     if (e.target.scrollTop > 500) isToTopVisiable.value = true
     else isToTopVisiable.value = false
   }
-})
+}
 
 const onToTopClick = () => {
   home.scrollTo({ top: 0, behavior: 'smooth' })
@@ -24,6 +27,7 @@ const onGuideClick = () => driverObj.drive()
 
 <template>
   <div class="fixed right-2 bottom-4">
+    <!-- 返回顶部 -->
     <div
       :class="isToTopVisiable ? 'opacity-100 visible' : 'opacity-0 invisible'"
       class="driver-to-top group p-[0.2rem] rounded-full border border-zinc-200 hover:shadow cursor-pointer mb-1 duration-300"
@@ -35,7 +39,7 @@ const onGuideClick = () => driverObj.drive()
         name="to-top"
       ></m-svg-icon>
     </div>
-
+    <!-- 引导 -->
     <div
       class="driver-guide group p-1 rounded-full border border-zinc-200 hover:shadow cursor-pointer mb-1"
       @click="onGuideClick"
@@ -46,7 +50,7 @@ const onGuideClick = () => driverObj.drive()
         name="guide"
       ></m-svg-icon>
     </div>
-
+    <!-- 反馈 -->
     <m-popover class="driver-feedback" placement="top-left">
       <template #trigger>
         <div

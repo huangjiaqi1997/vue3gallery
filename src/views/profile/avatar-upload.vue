@@ -16,25 +16,16 @@ const fileRef = useTemplateRef('fileRef')
 const file = ref('')
 
 watch(avatar, () => {
-  if (isSubmitDisabled.value) {
-    isSubmitDisabled.value = false
-  }
+  if (isSubmitDisabled.value) isSubmitDisabled.value = false
 })
-
-// 获取随机头像的文件 imageUrl => file
-const getFileByUrl = async (url) => {
-  const res = await scr2blob(url)
-  file.value = res
-  return URL.createObjectURL(res)
-}
 
 // 获取随机头像
 const onRandomClick = async () => {
   // https://picsum.photos/200/200/?image= + Math.round(Math.random() * 20)
   const url = '/?image=' + Math.round(Math.random() * 20)
-  const file = await getFileByUrl(url)
-
-  avatar.value = file
+  const res = await scr2blob(url)
+  file.value = res
+  avatar.value = URL.createObjectURL(res)
 }
 
 // 获取阿里云上传凭证
@@ -69,14 +60,9 @@ const uploadToOSS = async (filePath, file) => {
 }
 
 // 点击上传获取 fileURL
-const getFileURL = () => {
-  file.value = fileRef.value.files[0]
-  const fileURL = URL.createObjectURL(file.value)
-  avatar.value = fileURL
-  return fileURL
-}
 const onUploadClick = async () => {
-  getFileURL()
+  file.value = fileRef.value.files[0]
+  avatar.value = URL.createObjectURL(file.value)
 }
 
 // 阿里云上传 + 更新用户信息
@@ -86,6 +72,7 @@ const onSubmit = async () => {
     `images/${userInfo.username}/${new Date().getTime()}.png`,
     file.value
   )
+
   await store.dispatch('updateUserInfo', {
     ...userInfo,
     avatar: url
@@ -96,7 +83,7 @@ const onSubmit = async () => {
 }
 
 const resetState = () => {
-  avatar.value = _avatar
+  avatar.value = userInfo.avatar
 }
 
 const handleClose = () => {

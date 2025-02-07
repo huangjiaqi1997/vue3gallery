@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, Transition, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { isMobile } from '@/utils/flexible'
 import api from '@/api'
 // import gsap from 'gsap'
@@ -55,6 +55,8 @@ const getOriginPos = () => {
 
 // 关闭按钮
 const handleCloseClick = () => emits('close')
+
+// GSAP
 // watch(
 //   () => visible,
 //   async () => {
@@ -231,12 +233,13 @@ const handleCloseClick = () => emits('close')
             class="duration-200 xl:rounded-l xl:h-[96vh] w-screen xl:w-[96vh] object-cover"
             :src="detail.photo"
           />
-          <div class="w-screen xl:w-[55vh] py-2 px-2">
+
+          <div class="w-screen xl:w-[55vh] p-2 mb-4">
             <div v-if="!isMobile" class="flex justify-between mb-2">
               <m-button icon="share">分享</m-button>
               <m-button icon="heart">喜欢</m-button>
             </div>
-            <div class="text-xl font-semibold mb-2">
+            <div class="xl:text-xl text-lg font-semibold mb-2">
               {{ detail.title }}
             </div>
             <div class="flex items-center">
