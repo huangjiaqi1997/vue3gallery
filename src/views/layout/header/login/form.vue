@@ -5,6 +5,7 @@ import { onUnmounted, ref } from 'vue'
 import md5 from 'md5'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+// import '@/vendor/qqlogin/qc_jssdk.js'
 
 const emits = defineEmits(['close'])
 
@@ -95,6 +96,13 @@ const loginRegister = async () => {
   emits('close')
   router.push('/')
 }
+
+const onQQLoginClick = () => {
+  // QC.Login.showPopup({
+  //   appId: '102668302',
+  //   redirectURI: 'http://192.168.1.5:5173/vue3gallery/qqlogin'
+  // })
+}
 </script>
 
 <template>
@@ -174,6 +182,8 @@ const loginRegister = async () => {
     <!-- 第三方登录 -->
     <div class="w-full flex justify-evenly">
       <m-svg-icon
+        @click="onQQLoginClick"
+        id="qqLoginBtn"
         class="group h-4 w-4 cursor-pointer"
         name="qq"
         fillClass="fill-zinc-500 group-hover:fill-[#1296db] duration-300"

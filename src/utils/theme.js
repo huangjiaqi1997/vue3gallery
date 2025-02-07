@@ -24,7 +24,6 @@ export const useThemeChange = () => {
           if (!mql) mql = window.matchMedia('(prefers-color-scheme: dark)')
 
           htmlClass = mql.matches ? 'dark' : ''
-
           // 监听系统主题变更
           mql.addEventListener('change', handleMqlChange)
           break
@@ -41,7 +40,7 @@ export const useThemeChange = () => {
   )
 
   // 当监听到系统主题变更
-  const handleMqlChange = (e) => {
+  function handleMqlChange(e) {
     htmlClass = e.matches ? 'dark' : ''
     changeHtmlClass()
   }
